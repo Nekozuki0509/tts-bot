@@ -1,15 +1,25 @@
+mod commands;
+mod discord;
+mod events;
 mod voicevox;
-use std::path::Path;
 
-use anyhow::Result;
+use std::{env, path::Path};
 
-fn main() -> Result<()> {
+use anyhow::{Context, Result};
+use dotenv::dotenv;
+
+#[tokio::main]
+async fn main() -> Result<()> {
     println!("initialize voicevox");
     let voicevox_path = Path::new("./voicevox_core");
-    voicevox::init(voicevox_path)?;
+    //voicevox::init(voicevox_path)?;
 
-    println!("generating voice");
-    voicevox::tts("こんにちわ", 0)?;
+    println!("initialize discord bot");
+    dotenv()?;
+
+    let mut client = discord::init(&env::var("TOKEN").context("").unwrap()).await?;
+
+    client.start().await?;
 
     Ok(())
 }
